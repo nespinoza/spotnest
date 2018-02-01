@@ -14,7 +14,7 @@ import os
 # Name of the file containing the data (first column time, second column relative flux)
 filename = 'my_lightcurve.dat'
 # Number of spots in the model. 0: no spot fit, 1: one spot, 2: two spots
-nspots = 2
+nspots = 1
 
 # Number of MultiNest live points:
 n_live_points = 1000

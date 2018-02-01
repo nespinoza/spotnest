@@ -27,7 +27,7 @@ Once all of the above is installed, usage of the code is very easy. First, copy 
 
     python spotnest.py
 
-And the could should run, fit the transit + spot model, and save the results to a pickle file. If you have matplotlib, it will also show you a nice plot at the end with draws from the posterior model.
+And the code should run, fit the transit + spot model, and save the results to a pickle file. If you have matplotlib, it will also show you a nice plot at the end with draws from the posterior model.
 
 OUTPUTS
 -------
