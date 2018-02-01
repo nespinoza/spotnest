@@ -34,7 +34,7 @@ OUTPUTS
 
 The main output of the code are all the `PyMultiNest` related outputs, along with a pickle file with all the useful posterior information to make your life easier called `POSTERIOR_SAMPLES_nspot_x.pkl`, where `x` can be `0` for a no-spot transit fit, `1` for a transit plus one spot model and `2` for a transit plus two spots model. This pickle file is a dictionary, which contains:
 
-    `posterior_samples`                     These are the posterior samples of the MultiNest posterior exploration. The first 
+    `posterior_samples`                     These are the posterior samples of the MultiNest posterior exploration. 
                                             This is an array of size `nsamples,nvariables`. The first six variables are always 
                                             the transit parameters fitted: rp (Rp/Rs), aR (a/Rs), inc (inclination of the orbit), 
                                             t0 (time of transit center), q1 (first transformed coefficient a-la-Kipping 2013), 
