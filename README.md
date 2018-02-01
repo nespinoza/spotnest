@@ -1,6 +1,6 @@
 # spotnest
 
-SpotNest is a spot fitting routine (actually, a wrapper) which combines Bence Beky's *spot*rod (https://github.com/bencebeky/spotrod) and Multi*Nest* (via Johannes Buchner PyMultiNest, https://github.com/JohannesBuchner/PyMultiNest). It is a simple, ready-to-use code that is also easy to modify.
+SpotNest is a spot fitting routine (actually, a wrapper) which combines Bence Beky's et al. *spot*rod (https://github.com/bencebeky/spotrod) and Multi*Nest* (via Johannes Buchner's PyMultiNest, https://github.com/JohannesBuchner/PyMultiNest). It is a simple, ready-to-use code that is also easy to modify.
 
 ![SpotNest fit to data](spotnest.png?raw=true "Example of spotnest fit to data") 
 

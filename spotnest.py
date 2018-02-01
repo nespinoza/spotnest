@@ -29,24 +29,26 @@ NRESAMPLING = 20
 sigma_w = 2000.0 # ppm
 
 # Transit model priors:
-rp = 0.1                                 # Rp/Rs
-rp_sigma = (0.0011563461+0.0016538642)/2.
-aR = 6.0                                 # a/Rs
-aR_sigma = (0.3644584151+0.3414799136)/2.
-inc = 87.0                               # Inclination
-inc_sigma = (0.6364921359+0.7092897909)/2.  
-t0 = 2458028.0                           # Time-of-transit center
+rp = 0.1                                   # Rp/Rs
+rp_sigma = (0.0011563461+0.0016538642)/2.  # Uncertainty
+aR = 6.0                                   # a/Rs
+aR_sigma = (0.3644584151+0.3414799136)/2.  # Uncertainty
+inc = 87.0                                 # Inclination
+inc_sigma = (0.6364921359+0.7092897909)/2. # Uncertainty 
+t0 = 2458028.0                             # Time-of-transit center
 t0_sigma = (0.0002299240+0.0002043541)/2.
 ld_law = 'quadratic'                              # Limb-darkening law (quadratic supported by now, easy to implement other laws).
+
+# Transit parameters that are fixed on the fit:
+P = 6.0           # Orbital period
+ecc = 0.3         # Orbital eccentricity
+omega = 60.0      # Argument of periastron passage
 ###############################################
 
 
 # Fixed components:
 t,flux = np.loadtxt(filename,unpack=True)
 ndata = len(t)
-P = 6.0
-ecc = 0.3
-omega = 60.0
 deg_to_rad = (np.pi/2.)/90.
 k = ecc*np.cos(omega*deg_to_rad)
 h = ecc*np.sin(omega*deg_to_rad)
