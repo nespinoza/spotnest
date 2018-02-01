@@ -6,7 +6,7 @@ SpotNest is a spot fitting routine (actually, a wrapper) which combines Bence Be
 
 Author: Néstor Espinoza (espinoza@mpia.de). 
 
-This is a wrapper of the `spotrod` and `PyMultiNest` codes. If you use this code, please acknoledge also the authors of those packages. Citation for `spotrod`: http://adsabs.harvard.edu/abs/2014arXiv1407.4465B. Citation for `PyMultiNest`: http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1402.0004.
+**IMPORTANT**: This is a wrapper of the `spotrod` and `PyMultiNest` codes. If you use this code, please acknoledge also the authors of those packages. Citation for `spotrod`: http://adsabs.harvard.edu/abs/2014arXiv1407.4465B. Citation for `PyMultiNest`: http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:1402.0004.
 
 DEPENDENCIES
 ------------
