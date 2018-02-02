@@ -14,7 +14,7 @@ import os
 # Name of the file containing the data (first column time, second column relative flux)
 filename = 'my_lightcurve.dat'
 # Number of spots in the model. 0: no spot fit, 1: one spot, 2: two spots
-nspots = 1
+nspots = 2
 
 # Number of MultiNest live points:
 n_live_points = 1000
@@ -109,7 +109,7 @@ def prior(cube, ndim, nparams):
         # And also in radius of the spot:
         cube[8] = transform_uniform(cube[8],0,1)
         # And contrast:
-        cube[9] = transform_uniform(cube[9],-2,2)
+        cube[9] = transform_uniform(cube[9],0,2)
     if nspots == 2:
         # And now uniform in position of spot,
         cube[10] = transform_uniform(cube[10],-1,1)
@@ -117,7 +117,7 @@ def prior(cube, ndim, nparams):
         # And also in radius of the spot:
         cube[12] = transform_uniform(cube[12],0,1)
         # And contrast:
-        cube[13] = transform_uniform(cube[13],-2,2)
+        cube[13] = transform_uniform(cube[13],0,2)
 
 def quadraticlimbdarkening(r, s1, s2):
   answer = np.zeros_like(r)
