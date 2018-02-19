@@ -17,7 +17,7 @@ filename = 'my_lightcurve.dat'
 nspots = 1
 
 # Number of MultiNest live points:
-n_live_points = 1000
+n_live_points = 200
 # Around which phases do you want to fit the transit + spot model?
 PHASE_FIT = 0.02
 
@@ -29,15 +29,24 @@ NRESAMPLING = 20
 sigma_w = 2000.0 # ppm
 
 # Transit model priors:
-rp = 0.1                                   # Rp/Rs
-rp_sigma = (0.0011563461+0.0016538642)/2.  # Uncertainty
-aR = 6.0                                   # a/Rs
-aR_sigma = (0.3644584151+0.3414799136)/2.  # Uncertainty
-inc = 87.0                                 # Inclination
-inc_sigma = (0.6364921359+0.7092897909)/2. # Uncertainty 
-t0 = 2458028.0                             # Time-of-transit center
-t0_sigma = (0.0002299240+0.0002043541)/2.
-ld_law = 'quadratic'                              # Limb-darkening law (quadratic supported by now, easy to implement other laws).
+rp0 = 0.1                                   # Rp/Rs
+rp_sigma0 = (0.0011563461+0.0016538642)/2.  # Uncertainty
+aR0 = 6.0                                   # a/Rs
+aR_sigma0 = (0.3644584151+0.3414799136)/2.  # Uncertainty
+inc0 = 87.0                                 # Inclination
+inc_sigma0 = (0.6364921359+0.7092897909)/2. # Uncertainty 
+t00 = 2458028.0                             # Time-of-transit center
+t0_sigma0 = (0.0002299240+0.0002043541)/2.
+
+# Define priors for q1 and q2, if you have any. If you do, prior is assumed truncated normal 
+# between 0 and 1. If you don't, set all numbers to 0. This assumes you want a uniform distribution 
+# on q1 and q2:
+q10 = 0.
+q1_sigma0 = 0.
+q20 = 0.
+q2_sigma0 = 0.
+ld_law = 'quadratic'                        # Limb-darkening law (quadratic supported by now, easy to implement other laws).
+
 
 # Transit parameters that are fixed on the fit:
 P = 6.0           # Orbital period
@@ -72,10 +81,10 @@ def get_phases(t,P,t0):
     return phase
 
 # Remove out-of-transit points:
-phases = get_phases(t,P,t0)
+phases = get_phases(t,P,t00)
 idx_fit = np.where(np.abs(phases)<PHASE_FIT)[0]
 
-from scipy.stats import norm,beta
+from scipy.stats import norm,beta,truncnorm
 def transform_uniform(x,a,b):
     return a + (b-a)*x
 
@@ -90,18 +99,26 @@ def transform_normal(x,mu,sigma):
 def transform_beta(x,a,b):
     return beta.ppf(x,a,b)
 
+def transform_truncated_normal(x,mu,sigma,a=0.,b=1.):
+    ar, br = (a - mu) / sigma, (b - mu) / sigma
+    return truncnorm.ppf(x,ar,br,loc=mu,scale=sigma)
+
 def prior(cube, ndim, nparams):
     # Prior on "rp" is gaussian:
-    cube[0] = transform_normal(cube[0],rp,rp_sigma)
+    cube[0] = transform_truncated_normal(cube[0],rp0,rp_sigma0,a=0.,b=1.)
     # Same for aR:
-    cube[1] = transform_normal(cube[1],aR,aR_sigma)
+    cube[1] = transform_normal(cube[1],aR0,aR_sigma0)
     # And inc:
-    cube[2] = transform_normal(cube[2],inc,inc_sigma)
+    cube[2] = transform_truncated_normal(cube[2],inc0,inc_sigma0,a=0.,b=90.)
     # And t0:
-    cube[3] = transform_normal(cube[3],t0,t0_sigma)
+    cube[3] = transform_normal(cube[3],t00,t0_sigma0)
     # Uniform on the transformed LD coeffs (q1 and q2):
-    cube[4] = transform_uniform(cube[4],0,1)
-    cube[5] = transform_uniform(cube[5],0,1)
+    if q10 == 0. and q20 == 0.:
+        cube[4] = transform_uniform(cube[4],0,1)
+        cube[5] = transform_uniform(cube[5],0,1)
+    else:
+        cube[4] = utils.transform_truncated_normal(cube[4],q10,q1_sigma0)
+        cube[5] = utils.transform_truncated_normal(cube[5],q20,q2_sigma0)
     if nspots == 1 or nspots == 2:
         # And now uniform in position of spot,
         cube[6] = transform_uniform(cube[6],-1,1)
@@ -168,7 +185,17 @@ def spot_model(t,cube,nspot,texp = 0.01881944,RESAMPLE = False,NRESAMPLE=20):
     # Weights: 2.0 times limb darkening times width of integration annulii.
     f = 2.0 * quadraticlimbdarkening(r, s1, s2) / n
     # Calculate orbital elements.
-    eta, xi = spotrod.elements(tin-t0, P, aR, k, h)
+    if k == 0. and h == 0.:
+        # spotrod.elements (which uses the general equations of Pal, 2009MNRAS.396.1737P) 
+        # fail to extract proper eta and xi for the case of circular orbits. It is however 
+        # easy to obtain these following the paper (eqs. 6 and 7 on eqs 2 and 3):
+        M = (tin-t0)*(2*np.pi)/P
+        lam = M + omega*deg_to_rad
+        eta0, xi0 = aR*np.cos(lam),aR*np.sin(lam)
+        eta,xi = eta0*np.cos(omega*deg_to_rad) - xi0*np.sin(omega*deg_to_rad),\
+                 eta0*np.sin(omega*deg_to_rad) + xi0*np.cos(omega*deg_to_rad)
+    else:
+        eta, xi = spotrod.elements(tin-t0, P, aR, k, h)
     planetx = impactparam*eta/aR
     planety = -xi
     z = np.sqrt(np.power(planetx,2) + np.power(planety,2))
@@ -224,6 +251,7 @@ else:
     mc_samples = pickle.load(open(out_pickle_name,'rb'))['posterior_samples']
 
 if ShowPlots:
+    t0 = np.median(mc_samples[:,3])
     matplotlib.pyplot.style.use('ggplot')
     tmodel = np.linspace(np.min(t),np.max(t),1000)
     matplotlib.rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
